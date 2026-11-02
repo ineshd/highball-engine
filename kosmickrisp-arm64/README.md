@@ -23,6 +23,8 @@ with two sets of patches, applied in this order:
     constant buffer reads, 24.4 to 21 ms there, and null constant buffer descriptors then read a buffer of zeros. A read
     past a bound constant buffer returns the memory after it instead of zero. Also 256 command buffer records, so
     `MESA_KK_DEBUG=cbs` logs all of a frame's.
+  - `0008` HDR. The layer's EDR flag was only set for floating-point formats, so 10-bit HDR10 ran with it off and looked
+    washed out. Not yet confirmed in game.
 
 The driver needs macOS 26 for Metal 4. The archive holds the driver in `renderers/kosmickrisp` with its ICD file, and
 the Khronos loader as `lib/libMoltenVK.dylib`, the name Wine's winevulkan opens on this line.
