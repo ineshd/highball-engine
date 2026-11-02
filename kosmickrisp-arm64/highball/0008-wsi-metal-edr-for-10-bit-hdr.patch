@@ -1,0 +1,20 @@
+wsi/metal: enable EDR for HDR color spaces on integer formats
+
+CAMetalLayer needs wantsExtendedDynamicRangeContent for PQ and HLG output, but it
+was only set for floating-point formats. HDR10 on a 10-bit integer swapchain
+therefore ran with EDR off and looked washed out.
+
+Applied locally as a two-instruction change to the r2 driver. Not yet confirmed
+in game.
+
+--- a/src/vulkan/wsi/wsi_common_metal_layer.m
++++ b/src/vulkan/wsi/wsi_common_metal_layer.m
+@@ -174,7 +174,7 @@
+       metal_layer.pixelFormat = metal_format;
+ 
+       metal_layer.colorspace = cg_color_space;
+-      metal_layer.wantsExtendedDynamicRangeContent = wants_edr && vk_format_is_float(format);
++      metal_layer.wantsExtendedDynamicRangeContent = wants_edr;
+       /* Needs release: https://github.com/KhronosGroup/MoltenVK/issues/940 */
+       CGColorSpaceRelease(cg_color_space);
+    }
