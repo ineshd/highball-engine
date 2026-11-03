@@ -1,0 +1,43 @@
+wsi/metal: offer every colour space without VK_EXT_swapchain_colorspace
+
+wsi_metal_surface_get_formats and get_formats2 only list sRGB unless the application enabled
+VK_EXT_swapchain_colorspace. vkd3d-proton never enables it, so a D3D12 game's HDR10 swapchain
+(DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020) was refused and Forza Horizon 6 stayed in SDR with HDR on.
+Offer the full list, as other WSI backends effectively do. Pairs with 0008.
+
+Tested in Forza Horizon 6 on a base M5 (macOS 27.2), applied to the r2 driver as a binary patch with 0008:
+the swapchain is created with VK_COLOR_SPACE_HDR10_ST2084_EXT, the layer gets kCGColorSpaceITUR_2100_PQ
+with wantsExtendedDynamicRangeContent, and the game shows HDR. In windowed mode it gets the display's full
+EDR headroom. In full screen, macOS gave it about 1.0x headroom, which looks like a separate macOS-side
+limit (possibly Game Mode), not this patch.
+
+--- a/src/vulkan/wsi/wsi_common_metal.c
++++ b/src/vulkan/wsi/wsi_common_metal.c
+@@ -251,10 +251,9 @@
+ 
+    VkFormat sorted_formats[ARRAY_SIZE(available_surface_formats)];
+    get_sorted_vk_formats(wsi_device->force_bgra8_unorm_first, sorted_formats);
+-   unsigned color_space_count =
+-      pdev->instance->enabled_extensions.EXT_swapchain_colorspace
+-         ? ARRAY_SIZE(available_surface_color_spaces)
+-         : 1u;
++   /* Offer every colour space even when the application did not enable VK_EXT_swapchain_colorspace:
++    * vkd3d-proton never enables it, so HDR10 was hidden and DXGI HDR swapchains stayed sRGB. */
++   unsigned color_space_count = ARRAY_SIZE(available_surface_color_spaces);
+ 
+    for (unsigned i = 0; i < ARRAY_SIZE(sorted_formats); i++) {
+       for (unsigned j = 0; j < color_space_count; j++) {
+@@ -280,10 +279,9 @@
+ 
+    VkFormat sorted_formats[ARRAY_SIZE(available_surface_formats)];
+    get_sorted_vk_formats(wsi_device->force_bgra8_unorm_first, sorted_formats);
+-   unsigned color_space_count =
+-      pdev->instance->enabled_extensions.EXT_swapchain_colorspace
+-         ? ARRAY_SIZE(available_surface_color_spaces)
+-         : 1u;
++   /* Offer every colour space even when the application did not enable VK_EXT_swapchain_colorspace:
++    * vkd3d-proton never enables it, so HDR10 was hidden and DXGI HDR swapchains stayed sRGB. */
++   unsigned color_space_count = ARRAY_SIZE(available_surface_color_spaces);
+ 
+    for (unsigned i = 0; i < ARRAY_SIZE(sorted_formats); i++) {
+       for (unsigned j = 0; j < color_space_count; j++) {

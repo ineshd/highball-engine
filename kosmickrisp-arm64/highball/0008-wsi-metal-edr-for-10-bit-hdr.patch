@@ -4,8 +4,8 @@ CAMetalLayer needs wantsExtendedDynamicRangeContent for PQ and HLG output, but i
 was only set for floating-point formats. HDR10 on a 10-bit integer swapchain
 therefore ran with EDR off and looked washed out.
 
-Applied locally as a two-instruction change to the r2 driver. Not yet confirmed
-in game.
+Tested in Forza Horizon 6 with 0009, applied to the r2 driver as a binary patch:
+the game's HDR10 swapchain shows HDR. See 0009 for the full-screen headroom limit.
 
 --- a/src/vulkan/wsi/wsi_common_metal_layer.m
 +++ b/src/vulkan/wsi/wsi_common_metal_layer.m
