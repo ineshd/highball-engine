@@ -340,4 +340,5 @@ from the one Microsoft Flight Simulator 2024 pins until a flight has run on them
   with more channels than the output device goes through AUSpatialMixer instead of straight into the device unit,
   so Forza Horizon 6's 7.1.4 mix keeps its side, back and height channels on a Mac's two channels. Built for
   arm64 on Wine 11.18 with 0003 to 0053: the stripped mmdevapi.dll matched the shipped one's size, imports and
-  exports, and winecoreaudio.so its linked libraries and exports. Not yet tested in game on this line.
+  exports, and winecoreaudio.so its linked libraries and exports. Tested in Forza Horizon 6 on a base M5 (macOS 27.2,
+  engine arm64-kk-wine11.18-r1): sounds behind the player, which went silent before, play again.
