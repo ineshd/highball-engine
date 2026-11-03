@@ -7,8 +7,8 @@ needs the Mac driver's Metal glue that only CrossOver's tree has (`macdrv_functi
 
 The numbers do not match the Intel line's. This series started on 2026-10-05, when `patches/` ended at 0016, with
 0003 (the same file as the Intel line's 0003) and its own 0018 and 0019, and later patches took the next free number
-on either line. Since then the Intel line has used 0017 to 0025 for other patches. Two arm64 patches are ports of
-Intel ones under new numbers (0034 is the Intel line's 0019, 0035 its 0006), and two fix the same thing as an Intel
+on either line. Since then the Intel line has used 0017 to 0025 for other patches. Four arm64 patches are ports of
+Intel ones under new numbers (0034 is the Intel line's 0019, 0035 its 0006, 0053 its 0022, 0054 its 0023), and two fix the same thing as an Intel
 patch in a different way (0031 and the Intel 0007, 0039 and the Intel 0018).
 
 ## At a glance
@@ -42,6 +42,8 @@ Kinds are explained in the [top-level README](../README.md#patches-at-a-glance).
 | `0041` ntdll-arm64ec-the-x64-state-on-an-unhandled-exception | A crash log named the instruction but not the x64 registers. | Microsoft Flight Simulator 2024 | diagnostics | |
 | `0042` ntdll-arm64ec-rtliseccode-above-the-user-address-space | A thread could fault in a loop until its stack ran out. | Microsoft Flight Simulator 2024 | general | |
 | `0043` ntdll-arm64ec-a-program-sees-its-own-page-protection | Programs saw the emulator's page protection, so restoring it made their own pages fault. | Microsoft Flight Simulator 2024, copy protections | x86-64 fidelity | pairs with FEX 0022 |
+| `0053` mmdevapi-spatial-static-object-order | Side and back channels were swapped, and back centre missing, in 7.1 and 7.1.4 spatial audio. | Forza Horizon 6 | general | the Intel line's 0022, Tx (highball#313) |
+| `0054` winecoreaudio-spatial-mixer-for-surround-beds | Surround sound on a two-channel Mac kept only front left and right, so sounds behind the player went silent. | Forza Horizon 6 | macOS (off-switch: `HB_SPATIAL=0`) | the Intel line's 0023, Tx (highball#313) |
 
 ## Details
 
@@ -330,3 +332,12 @@ roam and normal exit, many sessions between 2026-10-29 and 2026-10-31. The stall
 protection is gone, and at 1080p, Very Low, FSR Quality and a cap of 30 the panel showed 8995 of 8997 frames at an even
 2 vsyncs. These patches apply to every game on an engine built with them, so the line that ships them is separate
 from the one Microsoft Flight Simulator 2024 pins until a flight has run on them.
+
+- `0053-mmdevapi-spatial-static-object-order.patch`: the Intel line's 0022, unchanged. Spatial audio static
+  objects get their channels in WAVEFORMATEXTENSIBLE speaker-bit order (back before side), and back centre's map
+  entry lands where objects look it up.
+- `0054-winecoreaudio-spatial-mixer-for-surround-beds.patch`: the Intel line's 0023, unchanged. A float surround bed
+  with more channels than the output device goes through AUSpatialMixer instead of straight into the device unit,
+  so Forza Horizon 6's 7.1.4 mix keeps its side, back and height channels on a Mac's two channels. Built for
+  arm64 on Wine 11.18 with 0003 to 0053: the stripped mmdevapi.dll matched the shipped one's size, imports and
+  exports, and winecoreaudio.so its linked libraries and exports. Not yet tested in game on this line.
